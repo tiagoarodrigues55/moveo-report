@@ -7,10 +7,10 @@
 
 export const clientConfigs = {
   'smart-compass': {
-    desk_id: process.env.DESK_ID,
-    api_key: process.env.API_KEY,
-    account_slug: process.env.ACCOUNT_SLUG,
-    base_url: process.env.BASE_URL || 'https://api.moveo.ai',
+    desk_id: "b9bfa0df-9ef2-4e9f-813e-fd74302743a4",
+    api_key: "manage_vdVf3KsisgkLCBJ2wpBP5",
+    account_slug: "smart-compass",
+    base_url: 'https://api.moveo.ai',
     tag_key: 'sou_eu',
     erv_variable: 'ERV',
     display_name: 'Smart Compass'
