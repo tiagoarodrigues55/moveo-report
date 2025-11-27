@@ -16,9 +16,9 @@ export async function GET(request, { params }) {
     );
   }
 
-  const { desk_id, api_key, base_url, tag_key, erv_variable } = clientConfig;
+  const { desk_id, api_key, tag_key, erv_variable } = clientConfig;
 
-  const url = `${base_url}/desks/${desk_id}/conversations`;
+  const url = `https://api.moveo.ai/api/v1/desks/${desk_id}/conversations`;
   const headers = {
     'Authorization': `apikey ${api_key}`,
     'Content-Type': 'application/json'
