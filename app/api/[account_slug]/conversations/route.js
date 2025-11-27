@@ -16,7 +16,7 @@ export async function GET(request, { params }) {
     );
   }
 
-  const { desk_id, api_key, tag_key, erv_variable } = clientConfig;
+  const { desk_id, api_key, tag_key, erv_variable, live_instructions, funnel_tags } = clientConfig;
 
   const url = `https://api.moveo.ai/api/v1/desks/${desk_id}/conversations`;
   const headers = {
@@ -44,7 +44,7 @@ export async function GET(request, { params }) {
     while (hasMore) {
       const apiParams = {
         account_slug: clientConfig.account_slug,
-        limit: 50
+        limit: 400
       };
 
       if (nextCursor) {
@@ -92,7 +92,7 @@ export async function GET(request, { params }) {
     }
 
     // Process data with client-specific configuration
-    const stats = processConversations(conversations, tag_key, erv_variable);
+    const stats = processConversations(conversations, tag_key, erv_variable, live_instructions, funnel_tags);
 
     return Response.json({
       total: conversations.length,
@@ -115,8 +115,7 @@ export async function GET(request, { params }) {
   }
 }
 
-function processConversations(conversations, tagKey, ervVariable) {
-  const funnel_tags = ['nao_conheco', 'sou_eu', 'bloquear'];
+function processConversations(conversations, tagKey, ervVariable, live_instructions, funnel_tags) {
 
   // Initialize stats
   const interactionBuckets = {
@@ -143,20 +142,24 @@ function processConversations(conversations, tagKey, ervVariable) {
   });
 
   // Tag presence statistics
-  const tagPresence = {
-    nao_conheco: { count: 0, total_erv: 0.0 },
-    sou_eu: { count: 0, total_erv: 0.0 },
-    bloquear: { count: 0, total_erv: 0.0 },
-    sem_tags: { count: 0, total_erv: 0.0 }
-  };
+  const tagPresence = {};
+  funnel_tags.forEach(tag => {
+    tagPresence[tag] = { count: 0, total_erv: 0.0 };
+  });
+  tagPresence.sem_tags = { count: 0, total_erv: 0.0 };
 
   conversations.forEach(conv => {
     const msgCount = conv.message_count || 0;
 
     // Extract ERV using the client-specific variable name
+    let ervStr = '0';
     const context = conv.context || {};
+    if (!live_instructions) {
     const liveInstructions = context.live_instructions || {};
-    const ervStr = liveInstructions[ervVariable] || '0';
+      ervStr = liveInstructions[ervVariable] || '0';
+    } else {
+      ervStr = context[ervVariable] || '0';
+    }
 
     let ervVal = 0.0;
     try {
